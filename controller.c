@@ -69,8 +69,8 @@ int main(int argc, char* argv[]){
 			static pid_t parent_PID;
 
 			static ack_data_t cntrl_to_dev;
-			static reg_sen registered_sen[3];
-			static reg_act registered_act[3];
+			reg_sen registered_sen[3];
+			reg_act registered_act[3];
 
 			controller_running = true;
 			dev_count_sen = 0;
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]){
 
 				//Get a message from the Message Queue
 				msg_recv_status = msgrcv(msg_q_ID, (void*)&received_data, BUFFER_SIZE, 0, 0 );
-				
+				printf("EVEN BEFORE!!!!!!%d %d\n",registered_sen[0].pid,received_data.msg_data.pid);
 				if (msg_recv_status == -1) {
 					fprintf(stderr, "Message receive from Message Queu failed with error: %d\n", errno);
 					exit(EXIT_FAILURE);
@@ -138,11 +138,10 @@ int main(int argc, char* argv[]){
 					}
 
 					else if (received_data.msg_data.status == STATUS_NORMAL) {
-						printf("Received --> Device Name: %d\tThreshold Value : %d\tCurrent Value: %d\n",
-										received_data.msg_data.pid,received_data.msg_data.trshVal,received_data.msg_data.currVal);
+						//printf("Received --> Device Name: %d\tThreshold Value : %d\tCurrent Value: %d\n",
+						//				received_data.msg_data.pid,received_data.msg_data.trshVal,received_data.msg_data.currVal);
 								
 						for (i=0; i <3; i++){
-							printf("EVEN BEFORE!!!!!!%d %d\n",registered_sen[i].pid,received_data.msg_data.pid);
 							if(registered_sen[i].pid==received_data.msg_data.pid){
 								//printf("Received --> Device Name: %s\tThreshold Value : %d\tCurrent Value: %d\n",
 								//		received_data.msg_data.devType,received_data.msg_data.trshVal,received_data.msg_data.currVal);
