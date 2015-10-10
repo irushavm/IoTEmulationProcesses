@@ -11,21 +11,21 @@
 
 int main(int argc, char* argv[]){
 
-	int msg_q_ID;
-	static bool running;
-	char devName [16];
-	int randNum, threshold ,msg_recv_status;
-	long int curr_PID;
-	long int recv_msg_type;
-	char str_buffer [128];
+	static int msg_q_ID;
+	static bool actuator_running;
+	static char devName [16];
+	static int randNum, threshold ,msg_recv_status;
+	static long int curr_PID;
+	static long int recv_msg_type;
+	static char str_buffer [128];
+	static dev_data_t send_data_1;
+	static ack_data_t received_data_from_ctrl;
 
-	dev_data_t send_data_1;
-	ack_data_t received_data_from_ctrl;
 
-	running = 1;
-
+	actuator_running = true;
 	curr_PID = getpid();
 	recv_msg_type = curr_PID*10;
+
 
 	printf("The current PID is: %li\n-------------------------\n", curr_PID );
 	send_data_1.msg_type =  curr_PID;
@@ -85,14 +85,14 @@ int main(int argc, char* argv[]){
 	//printf("Device Status: %d\n", send_data_1.msg_data.status);
 
 	//Periodically sending a random number every second
-	while(running){
+	while(actuator_running){
 
-		if (msgrcv(msg_q_ID, (void*)&received_data_from_ctrl,sizeof(ack_data_t), (long int) recv_msg_type , 0 )== -1) {
+		if (msgrcv(msg_q_ID, (void*)&received_data_from_ctrl,BUFFER_SIZE, (long int) recv_msg_type , 0 )== -1) {
 			fprintf(stderr, "ERROR: Did not receive Message from Controller. Err #%d\n",errno);
        		exit(EXIT_FAILURE);
 		}
 		if(strncmp(received_data_from_ctrl.ack_msg,"end",3)==0){
-			running = false;
+			actuator_running = false;
 			break;
 		}
 		else{

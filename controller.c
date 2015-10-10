@@ -28,8 +28,8 @@ static int Message_Queue_ID;
 
 void sig_handler(int signo)
 {	
-	dev_data_t catch_data;
-	long int msg_type;
+	static dev_data_t catch_data;
+	static long int msg_type;
 	pid_t curr_PID = getpid();
     if (signo == SIGUSR1){
     	printf("SIGUSR1 Received\n");
@@ -49,8 +49,8 @@ void sig_handler(int signo)
 
 
 int main(int argc, char* argv[]){
-	pid_t currentPID;
-	dev_data_t received_data;
+	static pid_t currentPID;
+	static dev_data_t received_data;
 
 	currentPID = fork();
 
@@ -60,18 +60,21 @@ int main(int argc, char* argv[]){
 		if(currentPID == 0) // child process
 		{
 			static int msg_q_ID;
-			bool running = true;
-			int msg_recv_status;
-			char dev_count_sen= 0;;
-			char dev_count_act = 0;
+			static bool controller_running;
+			static int msg_recv_status;
+			static char dev_count_sen;
+			static char dev_count_act;
 ;
-			int i;
-			int sig = 1;
-			pid_t parent_PID;
+			static int i;
+			static pid_t parent_PID;
 
 			static ack_data_t cntrl_to_dev;
 			static reg_sen registered_sen[3];
 			static reg_act registered_act[3];
+
+			controller_running = true;
+			dev_count_sen = 0;
+			dev_count_act = 0;
 
 
 			printf("\n Child Process: %d\n", getpid() );
@@ -83,7 +86,7 @@ int main(int argc, char* argv[]){
 			printf("Message Q ID:  %d\n",msg_q_ID);	
 			sleep(5);
 
-			while(running){
+			while(controller_running){
 
 				//Get a message from the Message Queue
 				msg_recv_status = msgrcv(msg_q_ID, (void*)&received_data, BUFFER_SIZE, 0, 0 );
@@ -92,11 +95,12 @@ int main(int argc, char* argv[]){
 					fprintf(stderr, "Message receive from Message Queu failed with error: %d\n", errno);
 					exit(EXIT_FAILURE);
 				}
-
+					
 				//Check to see if a sensor or actuator is sending a message
-				if (received_data.msg_type < 10000) {
+				if (received_data.msg_type < (long int) 100000) {
 					printf("Device status: %d\n",received_data.msg_data.status);
-
+					printf("Received --> Message type: %li\tDevice Name: %d\tThreshold Value : %d\tCurrent Value: %d\n",received_data.msg_type,
+										received_data.msg_data.pid,received_data.msg_data.trshVal,received_data.msg_data.currVal);
 					//If the check a device needed initialization
 					if (received_data.msg_data.status == STATUS_INIT) {
 						printf("Initializing Device in Database\n");
@@ -137,14 +141,15 @@ int main(int argc, char* argv[]){
 						printf("Received --> Device Name: %d\tThreshold Value : %d\tCurrent Value: %d\n",
 										received_data.msg_data.pid,received_data.msg_data.trshVal,received_data.msg_data.currVal);
 								
-						for (i=0; i <2; i++){
-
+						for (i=0; i <3; i++){
+							printf("EVEN BEFORE!!!!!!%d %d\n",registered_sen[i].pid,received_data.msg_data.pid);
 							if(registered_sen[i].pid==received_data.msg_data.pid){
-								printf("Received --> Device Name: %s\tThreshold Value : %d\tCurrent Value: %d\n",
-										received_data.msg_data.devType,received_data.msg_data.trshVal,received_data.msg_data.currVal);
+								//printf("Received --> Device Name: %s\tThreshold Value : %d\tCurrent Value: %d\n",
+								//		received_data.msg_data.devType,received_data.msg_data.trshVal,received_data.msg_data.currVal);
+								printf("BEFORE!!!!!!\n");
 								if(received_data.msg_data.currVal >= registered_sen[i].trshVal){
 									printf("OH NO!!!!!!\n");
-									//running = false;
+									//controller_running = false;
 									//Sets up Acknowledge Data to be sent
 									cntrl_to_dev.msg_type = registered_act[i].msg_type * 10;
 									strcpy(cntrl_to_dev.ack_msg,"Activate");
@@ -182,7 +187,7 @@ int main(int argc, char* argv[]){
         		printf("\ncan't catch SIGUSR1\n");
 			}
 
-			wait(1);
+			while(1);
 		}
 	else // fork failed
 	{
