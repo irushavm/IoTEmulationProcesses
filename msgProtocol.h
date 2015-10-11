@@ -18,7 +18,8 @@
 #define STATUS_NORMAL 2
 #define STATUS_ALARM 3
 
-
+#define CLOUD_FIFO_NAME "/tmp/cloud_fifo"
+#define PARENT_FIFO_NAME "/tmp/parent_%d_fifo"
 
 //Struct for Message structure
 typedef struct msg_data_struct{
@@ -40,3 +41,9 @@ typedef struct ack_data_struct{
 	long int msg_type;
 	char ack_msg[256];
 } ack_data_t;
+
+//Struct for FIFO
+typedef struct cloud_data_struct {
+    pid_t  parent_pid;
+    char   some_data[BUFFER_SIZE - 1];
+} cloud_st;

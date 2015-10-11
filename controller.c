@@ -25,8 +25,12 @@ typedef struct reg_act_struct {
 
 static pid_t childPID;
 
+static cloud_st cloud_data;
+
 static volatile bool stop_devices;
 static volatile bool controller_running;
+
+static int cloud_fifo_fd, parent_fifo_fd;
 
 void parent_sig_handler(int signo)
 {	
@@ -56,10 +60,22 @@ void parent_sig_handler(int signo)
 					catch_data.msg_data.status,
 					catch_data.msg_data.trshVal,
 					catch_data.msg_data.currVal);
+
+			//Sending FIFO to cloud
+			strcpy(cloud_data.some_data, "Signal received");
+			cloud_fifo_fd = open(CLOUD_FIFO_NAME, O_WRONLY);
+			cloud_data.parent_pid = getpid();
+			
+			printf("Parent PID: %d sent %s,\n", cloud_data.parent_pid, cloud_data.some_data);
+			write(cloud_fifo_fd, &cloud_data, sizeof(cloud_st));	
+			
 		}
+		
 	}
 	else if (signo == SIGINT){
 		kill(childPID,SIGINT);
+		close(cloud_fifo_fd);
+		unlink(CLOUD_FIFO_NAME);
 	}
 	else if (signo == SIGKILL){
 		kill(childPID,SIGKILL);
@@ -80,7 +96,6 @@ void child_sig_handler(int signo)
 
 
 int main(int argc, char* argv[]){
-
 
 	stop_devices = false;
 	controller_running = true;
@@ -264,8 +279,7 @@ int main(int argc, char* argv[]){
 			action1.sa_flags = 0;
 			sigaction(SIGUSR1, &action1, 0);
 			sigaction(SIGINT, &action1, 0);
-			sigaction(SIGKILL, &action1, 0);
-
+			sigaction(SIGKILL, &action1, 0);		
 
 			while(1);
 		}
