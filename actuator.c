@@ -87,20 +87,19 @@ int main(int argc, char* argv[]){
 	//Periodically sending a random number every second
 	while(actuator_running){
 
-		if (msgrcv(msg_q_ID, (void*)&received_data_from_ctrl,BUFFER_SIZE, (long int) recv_msg_type , 0 )== -1) {
+		if (msgrcv(msg_q_ID, (void*)&received_data_from_ctrl,sizeof(ack_data_t), (long int) recv_msg_type , 0 )== -1) {
 			fprintf(stderr, "ERROR: Did not receive Message from Controller. Err #%d\n",errno);
        		exit(EXIT_FAILURE);
 		}
-		if(strncmp(received_data_from_ctrl.ack_msg,"end",3)==0){
+		if(strncmp(received_data_from_ctrl.ack_msg,"STOP",4)==0){
 			actuator_running = false;
 			break;
 		}
 		else{
 			printf("Command: %s %s.\n",argv[1],received_data_from_ctrl.ack_msg);
-
-		
-
 		}
 
 	}
+	printf("Exit program\n");
+	return 0;
 }

@@ -19,8 +19,7 @@ int main(int argc, char* argv[]){
 	static char str_buffer [128];
 	static bool Sensor_running = true;
 	static char devName [16];
-	static int randNum, threshold,msg_recv_status,upper_limit;
-	
+	static int randNum, threshold,msg_recv_status,upper_limit,i;
 	static int msg_q_ID;
 	static long int curr_PID;
 	static long int recv_msg_type;
@@ -80,7 +79,8 @@ int main(int argc, char* argv[]){
 		fprintf(stderr, "ERROR: Message not received from Controller. Err # %d\n", errno);
 		exit(EXIT_FAILURE);
 	}
-	printf("Message from Controller: %s\n------------------------\n",received_data_from_ctrl.ack_msg);
+	printf("\t\tMessage from Controller: %s\n------------------------\n",received_data_from_ctrl.ack_msg);
+
 	if( strncmp(received_data_from_ctrl.ack_msg, "ACK", 3) == -1){
 		fprintf(stderr, "ERROR: Did not receive ACK Message. Err #%d\n",errno);
         exit(EXIT_FAILURE);
@@ -91,16 +91,14 @@ int main(int argc, char* argv[]){
 	send_data_1.msg_data.status = STATUS_NORMAL;
 	
 	//Periodically sending a random number every second
-	while(1){
+	while(Sensor_running){
 		
-		if (msgrcv(msg_q_ID, (void*)&received_data_from_ctrl,BUFFER_SIZE, (long int) recv_msg_type , IPC_NOWAIT ) != -1) {
-			if(strncmp(received_data_from_ctrl.ack_msg,"end",3)==0){
-				Sensor_running = false;
-				break;
-			}
-			printf("Inside message Receive\n");
-
+		msg_recv_status = msgrcv(msg_q_ID, (void*)&received_data_from_ctrl,BUFFER_SIZE, (long int) recv_msg_type , IPC_NOWAIT);
+		if(strncmp(received_data_from_ctrl.ack_msg,"STOP",4)==0){
+			Sensor_running = false;
+			break;
 		}
+
 		randNum = rand()%(upper_limit);
 		send_data_1.msg_data.currVal = randNum;
 		printf("Sending --> Message PID: %d\tDevice Status: %d\tThreshold Value : %d\tCurrent Value: %d\n", 
@@ -109,6 +107,8 @@ int main(int argc, char* argv[]){
 			fprintf(stderr, "ERROR: Message not sent to Controller. Err # %d\n", errno);
 			exit(EXIT_FAILURE);
 		}
+
+		
 		sleep(1);
 
 	}
