@@ -1,0 +1,25 @@
+////////////
+// README //
+////////////
+
+*****************************************
+*  SYSC4001 - Assignment 1		*
+*	Authors: 			*
+*	Monty Dhanani (100926543)	*
+*  	Irusha Vidanamadura (100935300) *
+*****************************************
+
+Make sure to follow these instructions in order:
+
+1. Run on PC CB5109-24
+2. Have 6 terminal windows open
+3. Run "make clean" command
+4. Run "make all" command
+5. On one terminal, run command "./controller"
+6. On a second terminal, run command "./actuator AC"
+7. On a third terminal, run command "./sensor TEMP 100"
+6. On a fourth terminal, run command "./actuator FAN"
+7. On a fifth terminal, run command "./sensor Humidity 70"
+8. On a sixth terminal, run command "./cloud"
+
+Note: do not run command with quotes

@@ -1,3 +1,9 @@
+/*	SYSC 4001 - Assignment 1
+	NOTE: Read README file first!
+	Authors:
+		Monty Dhanani (100926543)
+		Irusha Vidanamadura (100935300)
+*/	
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,10 +22,8 @@
 
 #define STATUS_INIT 1
 #define STATUS_NORMAL 2
-#define STATUS_ALARM 3
 
 #define CLOUD_FIFO_NAME "/tmp/cloud_fifo"
-#define PARENT_FIFO_NAME "/tmp/parent_%d_fifo"
 
 //Struct for Message structure
 typedef struct msg_data_struct{
@@ -42,8 +46,19 @@ typedef struct ack_data_struct{
 	char ack_msg[256];
 } ack_data_t;
 
-//Struct for FIFO
-typedef struct cloud_data_struct {
-    pid_t  parent_pid;
-    char   some_data[BUFFER_SIZE - 1];
-} cloud_st;
+//Child Struct for Parent Communication
+typedef struct act_data_struct{
+	pid_t pid;
+	int trshVal;
+	int currVal;
+	char action[30];
+	char devType[16];
+}act_data_t;
+
+//Struct for Parent Communication
+typedef struct action_data_struct {
+    long int msg_type;
+    	//Struct for Message structure
+	act_data_t action_data;
+} action_data_t;
+

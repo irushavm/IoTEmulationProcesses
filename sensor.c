@@ -1,3 +1,9 @@
+/*	SYSC 4001 - Assignment 1
+	NOTE: Read README file first!
+	Authors:
+		Monty Dhanani (100926543)
+		Irusha Vidanamadura (100935300)
+*/	
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>

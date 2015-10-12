@@ -1,3 +1,9 @@
+/*	SYSC 4001 - Assignment 1
+	NOTE: Read README file first!
+	Authors:
+		Monty Dhanani (100926543)
+		Irusha Vidanamadura (100935300)
+*/	
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -82,9 +88,8 @@ int main(int argc, char* argv[]){
 
 	send_data_1.msg_data.status = STATUS_NORMAL;
 	printf("Running Normal Behaviour\n------------------------\n");
-	//printf("Device Status: %d\n", send_data_1.msg_data.status);
 
-	//Periodically sending a random number every second
+	//Periodically checks the message queue if a message is received
 	while(actuator_running){
 
 		if (msgrcv(msg_q_ID, (void*)&received_data_from_ctrl,sizeof(ack_data_t), (long int) recv_msg_type , 0 )== -1) {
@@ -96,9 +101,17 @@ int main(int argc, char* argv[]){
 			break;
 		}
 		else{
+			//Prints command
 			printf("Command: %s %s.\n",argv[1],received_data_from_ctrl.ack_msg);
+			//Send Acknowledgement message back to the controller
+			strcpy(received_data_from_ctrl.ack_msg, "ACK");
+			received_data_from_ctrl.msg_type = curr_PID;
+			if(msgsnd(msg_q_ID, (void *)&received_data_from_ctrl, BUFFER_SIZE, 0) == -1){
+				fprintf(stderr, "ERROR: Message not sent to Controller. Err # %d\n", errno);
+				exit(EXIT_FAILURE);
+			}
 		}
-
+		sleep(0.5);
 	}
 	printf("Exit program\n");
 	return 0;
