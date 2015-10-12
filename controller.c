@@ -132,7 +132,7 @@ int main(int argc, char* argv[]){
 			dev_count_act = 0;
 
 			//Initializes all registered devices' message types to zero
-			for(i=0;i<3;i++){
+			for(i=0;i<MAX_ACT_SEN_AMOUNT;i++){
 				registered_sen[i].msg_type=0;
 				registered_act[i].msg_type=0;
 			}
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]){
 			while(controller_running){
 				//Check if a command to stop all devices has been given from the Parent Process
 				if (stop_devices==true){
-					for (i=0; i <3; i++){
+					for (i=0; i <MAX_ACT_SEN_AMOUNT; i++){
 						//Send STOP commands to Actuator
 						if(registered_act[i].msg_type!=0){
 							cntrl_to_dev.msg_type = registered_act[i].msg_type * 10;
@@ -237,7 +237,7 @@ int main(int argc, char* argv[]){
 								received_data.msg_data.status,
 								received_data.msg_data.trshVal,
 								received_data.msg_data.currVal);
-						for (i=0; i <3; i++){
+						for (i=0; i <MAX_ACT_SEN_AMOUNT; i++){
 							if(registered_sen[i].pid==received_data.msg_data.pid){
 								if(received_data.msg_data.currVal >= registered_sen[i].trshVal){
 									//Send Alarm Data to Parent through Message Queue
