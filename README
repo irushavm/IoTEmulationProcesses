@@ -22,4 +22,10 @@ Make sure to follow these instructions in order:
 7. On a fifth terminal, run command "./sensor Humidity 70"
 8. On a sixth terminal, run command "./cloud"
 
-Note: do not run command with quotes
+NOTE: DO NOT run command with quotes
+
+NOTE: IF Controller Hangs, it is due to the  MAX_PC_PROCESS Being too high.
+	IF  MAX_PC_PROCESS in msgProtocol.h is 100000, change it to 10000	
+	ELSE IF  MAX_PC_PROCESS in msgProtocol.h is 10000, change it to 100000
+
+NOTE: To change the Number of allowed devices(actuators and sensors)to initialize with the controller, change MAX_ACT_SEN_AMOUNT in msgProtocol.h 

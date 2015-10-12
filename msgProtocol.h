@@ -25,6 +25,10 @@
 
 #define CLOUD_FIFO_NAME "/tmp/cloud_fifo"
 
+#define MAX_PC_PROCESS 100000
+
+#define MAX_ACT_SEN_AMOUNT 3
+
 //Struct for Message structure
 typedef struct msg_data_struct{
 	pid_t pid;

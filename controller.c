@@ -124,14 +124,14 @@ int main(int argc, char* argv[]){
 			static dev_data_t received_data;
 			static ack_data_t cntrl_to_dev;
 			static action_data_t child_to_parent;
-			reg_sen registered_sen[3];
-			reg_act registered_act[3];
+			reg_sen registered_sen[MAX_ACT_SEN_AMOUNT];
+			reg_act registered_act[MAX_ACT_SEN_AMOUNT];
 			
 			controller_running = true;
 			dev_count_sen = 0;
 			dev_count_act = 0;
 
-			//Initializes all registered devices' message types to zero.
+			//Initializes all registered devices' message types to zero
 			for(i=0;i<3;i++){
 				registered_sen[i].msg_type=0;
 				registered_act[i].msg_type=0;
@@ -193,16 +193,16 @@ int main(int argc, char* argv[]){
 					//exit(EXIT_FAILURE);
 				}
 				//Check to see if a sensor or actuator is sending a message
-				else if (received_data.msg_type < (long int) 10000) {
+				else if (received_data.msg_type < (long int) MAX_PC_PROCESS) {
 
 					//If the check a device needed Registering
 					if (received_data.msg_data.status == STATUS_INIT) {
-						printf("Initializing Device in Database\n");
+						printf("---------------\nInitializing Device in Database\n");
 				   			
 						//Set up Acknowledge Data to be sent
 						cntrl_to_dev.msg_type = (long int)received_data.msg_type * 10;
 						strcpy(cntrl_to_dev.ack_msg,"ACK");
-						printf("Sent to Registered Device: %li  %s\n",cntrl_to_dev.msg_type,cntrl_to_dev.ack_msg);
+						printf("Sending To Registered Device --> %li  %s\n---------------\n",cntrl_to_dev.msg_type,cntrl_to_dev.ack_msg);
 
 						//Send Acknowledgement data
 						if (msgsnd(msg_q_ID, (void *)&cntrl_to_dev, BUFFER_SIZE, 0) == -1) {
@@ -249,7 +249,7 @@ int main(int argc, char* argv[]){
 									child_to_parent.action_data.trshVal=registered_sen[i].trshVal;
 									child_to_parent.action_data.currVal = received_data.msg_data.currVal;
 									
-									printf("Sent to Parent --> Message type: %li\tDevice PID: %d\tDevice Type: %s\tDevice Action: %s\tThreshold Value : %d\tCurrent Value: %d\n",
+									printf("Sending to Parent --> Message type: %li\tDevice PID: %d\tDevice Type: %s\tDevice Action: %s\tThreshold Value : %d\tCurrent Value: %d\n",
 											child_to_parent.msg_type, 
 											child_to_parent.action_data.pid,
 											child_to_parent.action_data.devType,
